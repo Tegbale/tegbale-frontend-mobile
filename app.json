@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "frontend-mobile",
+    "name": "Tègbalé",
     "slug": "frontend-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,6 +10,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.tegbale.mobile",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -20,6 +21,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e248cb5d-b273-457f-918c-c7fa87251182"
+      }
     }
   }
 }
