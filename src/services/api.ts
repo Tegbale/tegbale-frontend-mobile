@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://api.tegbale.com';
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://api.tegbale.com/api';
 
 export const TOKEN_KEY = 'tegbale_access_token';
 export const REFRESH_TOKEN_KEY = 'tegbale_refresh_token';

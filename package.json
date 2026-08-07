@@ -27,7 +27,7 @@
   },
   "scripts": {
     "start": "expo start",
-    "start:staging": "APP_VARIANT=staging EXPO_PUBLIC_API_URL=https://staging-api.tegbale.com expo start",
+    "start:staging": "APP_VARIANT=staging EXPO_PUBLIC_API_URL=https://staging-api.tegbale.com/api expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web"
