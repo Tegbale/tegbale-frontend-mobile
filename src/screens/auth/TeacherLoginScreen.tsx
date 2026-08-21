@@ -23,7 +23,7 @@ type Props = {
 };
 
 export default function TeacherLoginScreen({ navigation }: Props) {
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,7 +35,12 @@ export default function TeacherLoginScreen({ navigation }: Props) {
     }
     setLoading(true);
     try {
-      await login(email.trim().toLowerCase(), password);
+      const u = await login(email.trim().toLowerCase(), password);
+      if (u.role !== 'TEACHER' && u.role !== 'STAFF') {
+        await logout();
+        Alert.alert('Wrong Portal', 'This login is for teachers only. Please use the Parent login.');
+        return;
+      }
       navigation.navigate('TeacherApp');
     } catch (e: any) {
       Alert.alert('Login Failed', e.message ?? 'Invalid credentials. Please check and try again.');

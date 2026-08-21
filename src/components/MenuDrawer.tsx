@@ -78,7 +78,10 @@ export default function MenuDrawer({ visible, onClose, onNavigate }: Props) {
   };
 
   const fullName = user ? `${user.firstName} ${user.lastName}` : 'User';
-  const roleLabel = user?.role === 'PARENT' ? 'Parent' : user?.role === 'STAFF' ? 'Teacher' : 'Admin';
+  const roleLabel = user?.role === 'PARENT' ? 'Parent'
+    : user?.role === 'TEACHER' ? 'Teacher'
+    : user?.role === 'STAFF' ? 'Staff'
+    : 'Admin';
   const email = user?.email ?? '';
 
   return (

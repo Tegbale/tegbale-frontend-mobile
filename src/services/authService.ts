@@ -6,7 +6,7 @@ export type User = {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'PARENT' | 'STAFF' | 'SCHOOL_ADMIN';
+  role: 'PARENT' | 'TEACHER' | 'STAFF' | 'SCHOOL_ADMIN';
   phone?: string;
   avatar?: string;
   schoolId: string;

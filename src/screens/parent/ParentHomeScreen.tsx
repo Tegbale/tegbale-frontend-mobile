@@ -17,7 +17,7 @@ import { Colors } from '../../theme/colors';
 import AvatarCircle from '../../components/AvatarCircle';
 import MenuDrawer from '../../components/MenuDrawer';
 import { useAuth } from '../../context/AuthContext';
-import { listPosts, Post } from '../../services/postsService';
+import { listPosts, createComment, Post } from '../../services/postsService';
 import { RootStackParamList } from '../../navigation/types';
 
 const MOCK_POSTS: Post[] = [
@@ -53,7 +53,22 @@ function timeAgo(dateStr: string) {
 
 function PostCard({ post }: { post: Post }) {
   const [reply, setReply] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const authorName = `${post.author.firstName} ${post.author.lastName}`;
+
+  const handleSendReply = async () => {
+    const text = reply.trim();
+    if (!text || submitting) return;
+    setSubmitting(true);
+    try {
+      await createComment(post.id, text);
+      setReply('');
+    } catch {
+      // silent — don't block the user
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <View style={styles.card}>
@@ -93,8 +108,10 @@ function PostCard({ post }: { post: Post }) {
           value={reply}
           onChangeText={setReply}
         />
-        <TouchableOpacity>
-          <Ionicons name="send" size={18} color={Colors.primaryBlue} />
+        <TouchableOpacity onPress={handleSendReply} disabled={submitting || !reply.trim()}>
+          {submitting
+            ? <ActivityIndicator size="small" color={Colors.primaryBlue} />
+            : <Ionicons name="send" size={18} color={reply.trim() ? Colors.primaryBlue : Colors.secondaryText} />}
         </TouchableOpacity>
       </View>
     </View>
