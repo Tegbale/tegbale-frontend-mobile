@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,14 +7,44 @@ import { Colors } from '../../theme/colors';
 import AvatarCircle from '../../components/AvatarCircle';
 import MenuDrawer from '../../components/MenuDrawer';
 import { useAuth } from '../../context/AuthContext';
-import { RootStackParamList } from '../../navigation/types';
+import { RootStackParamList, ClassroomData } from '../../navigation/types';
+import { listClassrooms, Classroom } from '../../services/classroomsService';
+
+function classroomToData(c: Classroom): ClassroomData {
+  return { id: c.id, name: c.name, studentCount: c._count?.students ?? 0 };
+}
 
 export default function TeacherHomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user } = useAuth();
   const [menuVisible, setMenuVisible] = useState(false);
+  const [classrooms, setClassrooms] = useState<ClassroomData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const firstName = user?.firstName ?? 'Teacher';
+
+  const fetchClassrooms = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
+    try {
+      const res = await listClassrooms();
+      setClassrooms(res.classrooms.map(classroomToData));
+    } catch {
+      // leave empty on error
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchClassrooms(); }, [fetchClassrooms]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchClassrooms(true);
+  };
+
+  const totalStudents = classrooms.reduce((sum, c) => sum + c.studentCount, 0);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -28,40 +58,54 @@ export default function TeacherHomeScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.body}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primaryBlue} />}
+      >
         <View style={styles.welcomeCard}>
           <AvatarCircle type="teacher" size={56} />
           <View style={styles.welcomeText}>
             <Text style={styles.welcomeHeading}>Good morning, {firstName}!</Text>
-            <Text style={styles.welcomeSub}>You have 2 classrooms today</Text>
+            <Text style={styles.welcomeSub}>
+              {loading ? 'Loading...' : `You have ${classrooms.length} classroom${classrooms.length !== 1 ? 's' : ''}`}
+            </Text>
           </View>
         </View>
 
         <Text style={styles.sectionTitle}>Your Classrooms</Text>
-        {[
-          { name: 'Primary 5 Classroom', count: '20 Students', type: 'student-boy' as const },
-          { name: 'Primary 2 Classroom', count: '15 Students', type: 'student-girl' as const },
-        ].map((cls, i) => (
-          <TouchableOpacity
-            key={i}
-            style={styles.classRow}
-            onPress={() => navigation.navigate('ClassroomDetail', { classroom: { id: String(i), name: cls.name, studentCount: parseInt(cls.count) } })}
-            activeOpacity={0.8}
-          >
-            <AvatarCircle type={cls.type} size={44} />
-            <View style={styles.classInfo}>
-              <Text style={styles.className}>{cls.name}</Text>
-              <Text style={styles.classCount}>{cls.count}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={Colors.secondaryText} />
-          </TouchableOpacity>
-        ))}
+
+        {loading && !refreshing ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color={Colors.primaryBlue} />
+          </View>
+        ) : classrooms.length === 0 ? (
+          <View style={styles.center}>
+            <Text style={styles.emptyText}>No classrooms assigned yet</Text>
+          </View>
+        ) : (
+          classrooms.map((cls, index) => (
+            <TouchableOpacity
+              key={cls.id}
+              style={styles.classRow}
+              onPress={() => navigation.navigate('ClassroomDetail', { classroom: cls })}
+              activeOpacity={0.8}
+            >
+              <AvatarCircle type={index % 2 === 0 ? 'student-boy' : 'student-girl'} size={44} />
+              <View style={styles.classInfo}>
+                <Text style={styles.className}>{cls.name}</Text>
+                <Text style={styles.classCount}>{cls.studentCount} Students</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={Colors.secondaryText} />
+            </TouchableOpacity>
+          ))
+        )}
 
         <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Quick Stats</Text>
         <View style={styles.statsRow}>
-          <StatCard icon="people" label="Total Students" value="35" color="#4A90D9" />
-          <StatCard icon="chatbubbles" label="Messages" value="8" color="#27AE60" />
-          <StatCard icon="calendar" label="Events" value="3" color="#9B59B6" />
+          <StatCard icon="people" label="Total Students" value={String(totalStudents)} color="#4A90D9" />
+          <StatCard icon="school" label="Classrooms" value={String(classrooms.length)} color="#27AE60" />
+          <StatCard icon="calendar" label="Events" value="—" color="#9B59B6" />
         </View>
       </ScrollView>
 
@@ -115,6 +159,8 @@ const styles = StyleSheet.create({
   welcomeHeading: { fontSize: 16, fontWeight: 'bold', color: Colors.darkText },
   welcomeSub: { fontSize: 13, color: Colors.secondaryText, marginTop: 4 },
   sectionTitle: { fontSize: 15, fontWeight: '700', color: Colors.darkText, marginBottom: 12 },
+  center: { alignItems: 'center', paddingVertical: 24 },
+  emptyText: { fontSize: 14, color: Colors.secondaryText },
   classRow: {
     flexDirection: 'row',
     alignItems: 'center',
