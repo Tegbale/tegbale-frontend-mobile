@@ -22,21 +22,21 @@ export type Message = {
 type MessagesResponse = { messages: Message[]; total: number };
 
 export async function listMessages(page = 1, limit = 100): Promise<MessagesResponse> {
-  return api.get<MessagesResponse>(`/api/messages?page=${page}&limit=${limit}&type=all`);
+  return api.get<MessagesResponse>(`/v1/messages?page=${page}&limit=${limit}&type=all`);
 }
 
 export async function getConversation(partnerId: string, limit = 100): Promise<MessagesResponse> {
-  return api.get<MessagesResponse>(`/api/messages?partnerId=${partnerId}&limit=${limit}`);
+  return api.get<MessagesResponse>(`/v1/messages?partnerId=${partnerId}&limit=${limit}`);
 }
 
 export async function markConversationRead(partnerId: string): Promise<void> {
-  return api.patch<void>('/api/messages/read-conversation', { partnerId });
+  return api.patch<void>('/v1/messages/read-conversation', { partnerId });
 }
 
 export async function sendMessage(receiverId: string, body: string): Promise<Message> {
-  return api.post<Message>('/api/messages', { receiverId, body });
+  return api.post<Message>('/v1/messages', { receiverId, body });
 }
 
 export async function getMessage(id: string): Promise<Message> {
-  return api.get<Message>(`/api/messages/${id}`);
+  return api.get<Message>(`/v1/messages/${id}`);
 }

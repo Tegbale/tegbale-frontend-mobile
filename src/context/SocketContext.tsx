@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_BASE_URL, TOKEN_KEY } from '../services/api';
+import { SOCKET_URL, TOKEN_KEY } from '../services/api';
 import { useAuth } from './AuthContext';
 
 type SocketContextValue = {
@@ -36,7 +36,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     AsyncStorage.getItem(TOKEN_KEY).then(token => {
       if (!token) return;
 
-      s = io(API_BASE_URL, {
+      s = io(SOCKET_URL, {
         auth: { token },
         transports: ['websocket', 'polling'],
         reconnectionAttempts: 5,

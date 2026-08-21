@@ -24,14 +24,14 @@ type StudentsResponse = { students: ClassroomStudent[]; total: number };
 type ClassroomDetailResponse = Classroom & { teachers: ClassroomTeacher[]; students: ClassroomStudent[] };
 
 export async function listClassrooms(): Promise<ClassroomsResponse> {
-  return api.get<ClassroomsResponse>('/api/classrooms');
+  return api.get<ClassroomsResponse>('/v1/classrooms');
 }
 
 export async function listClassroomStudents(classroomId: string): Promise<StudentsResponse> {
-  return api.get<StudentsResponse>(`/api/students?classroomId=${classroomId}&limit=100`);
+  return api.get<StudentsResponse>(`/v1/students?classroomId=${classroomId}&limit=100`);
 }
 
 export async function getClassroomTeachers(classroomId: string): Promise<ClassroomTeacher[]> {
-  const data = await api.get<ClassroomDetailResponse>(`/api/classrooms/${classroomId}`);
+  const data = await api.get<ClassroomDetailResponse>(`/v1/classrooms/${classroomId}`);
   return data.teachers ?? [];
 }

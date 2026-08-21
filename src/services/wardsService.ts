@@ -14,5 +14,5 @@ export type Ward = {
 type WardsResponse = { wards: Ward[]; total: number };
 
 export async function listWards(): Promise<WardsResponse> {
-  return api.get<WardsResponse>('/api/parents/me/wards');
+  return api.get<WardsResponse>('/v1/parents/me/wards');
 }

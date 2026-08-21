@@ -10,5 +10,5 @@ export type UserResult = {
 
 export async function searchUsers(q: string): Promise<UserResult[]> {
   if (!q.trim()) return [];
-  return api.get<UserResult[]>(`/api/users/search?q=${encodeURIComponent(q.trim())}`);
+  return api.get<UserResult[]>(`/v1/users/search?q=${encodeURIComponent(q.trim())}`);
 }
