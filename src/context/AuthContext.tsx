@@ -4,7 +4,7 @@ import { login as apiLogin, logout as apiLogout, getMe, User } from '../services
 type AuthContextType = {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
   setUser: (u: User | null) => void;
 };
@@ -12,7 +12,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  login: async () => {},
+  login: async () => { throw new Error('AuthProvider not mounted'); },
   logout: async () => {},
   setUser: () => {},
 });
@@ -28,9 +28,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<User> => {
     const u = await apiLogin(email, password);
     setUser(u);
+    return u;
   };
 
   const logout = async () => {
