@@ -27,6 +27,7 @@ const env = variants[variant];
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: env.name,
+  slug: config.slug ?? 'frontend-mobile',
   android: {
     ...config.android,
     package: env.androidPackage,
