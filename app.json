@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "Tègbalé",
+    "owner": "bremetech",
     "slug": "frontend-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
