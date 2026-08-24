@@ -28,6 +28,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: env.name,
   slug: config.slug ?? 'frontend-mobile',
+  plugins: ['expo-status-bar'],
   android: {
     ...config.android,
     package: env.androidPackage,
